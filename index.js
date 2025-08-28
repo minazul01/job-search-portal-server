@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 require('dotenv').config()
 
 const port = process.env.PORT || 5000
@@ -41,6 +41,42 @@ async function run() {
     res.send(result);
   });
 
+//  pacific user post job find
+app.get('/posts/:email', async(req, res) => {
+  const email = req.params.email;
+  const query = {'buyer.email': email};
+  const result = await addJobCollection.find(query).toArray();
+  res.send(result);
+});
+
+// job post delete
+app.delete('/posts/:id', async(req, res) => {
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)};
+  const result = await addJobCollection.deleteOne(query);
+  res.send(result);
+});
+
+// single id to the find job post
+app.get('/post/:id', async(req, res) => {
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)};
+  const result = await addJobCollection.findOne(query);
+  res.send(result);
+});
+
+// update the pacific job post
+app.put('/post/:id', async (req, res) => {
+    const id = req.params.id;
+    const postData = req.body;
+    const updateDocs = {
+      $set: postData,
+    };
+    const query = {_id: new ObjectId(id)};
+    const options = {upsert: true};
+    const result = await addJobCollection.updateOne(query, updateDocs, options);
+    res.send(result);
+  });
 
 
   try {
